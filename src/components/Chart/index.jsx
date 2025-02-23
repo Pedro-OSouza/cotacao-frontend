@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Line } from 'react-chartjs-2';
@@ -13,6 +14,7 @@ import {
   Legend
 } from 'chart.js';
 import ListaMoedas from '../ListaMoedas'; // Importando o componente ListaMoedas
+
 
 const apiHistorical = import.meta.env.VITE_API_HISTORICAL_URL
 const apiMoedas = import.meta.env.VITE_API_MOEDAS_URL
@@ -31,6 +33,33 @@ const Button = styled.button`
     background-color: #0056b3;
   }
 `;
+
+const ChartContainer = styled.div`
+  min-height: 10rem;
+  width: auto;
+  height: 70vh;
+  margin: 0 auto; 
+
+  @media(max-width: 750px) {
+    width: 180vw; 
+    overflow-y: scroll;
+    height: 50vh;
+    margin: 0;
+    padding-right: 5rem;
+  }
+`;
+
+const Container = styled.div`
+  width: 100%;
+  overflow-x: hiden;
+
+  @media (max-width: 800px) {
+    overflow-x: scroll;
+    width: 95vw;
+  }
+`
+
+/* const yAxisValues =  [...new Set(chartData.datasets[0].data)]; */
 
 ChartJs.register(
   CategoryScale,
@@ -52,7 +81,6 @@ export default function Chart() {
   const fetchHistoricalData = async (moeda) => {
     try {
       const response = await axios.get(`${apiHistorical}${moeda}`);
-      console.log("Dados de historical", response.data);
 
       /* Processar dados */
       const labels = response.data.map(item => {
@@ -85,7 +113,6 @@ export default function Chart() {
   const fetchMoedas = async () => {
     try {
       const response = await axios.get(`${apiMoedas}`);
-      console.log("Dados de Moedas", response.data);
 
       // Processar dados de moedas para preenchimento da lista de opções
       const moedas = Object.keys(response.data.xml).map(key => ({
@@ -117,7 +144,9 @@ export default function Chart() {
   if (loading) return <p>Carregando...</p>;
 
   return (
-    <div>
+    <div> 
+
+      
 
       {/* Componente ListaMoedas para selecionar a moeda */}
       <ListaMoedas
@@ -129,12 +158,18 @@ export default function Chart() {
       {/* Botão de pesquisa */}
       <Button onClick={handleSearchClick}>Pesquisar</Button>
 
+      
+
+      <Container>
       {/* Componente Line do gráfico */}
+      <ChartContainer>
+
       {chartData && (
         <Line
         data={chartData}
         options={{
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             legend: {
               display: true,
@@ -188,6 +223,8 @@ export default function Chart() {
         }}
         />
       )}
+      </ChartContainer>
+      </Container>
     </div>
   );
 }
